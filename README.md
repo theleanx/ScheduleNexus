@@ -13,6 +13,7 @@ ScheduleNexus is a research web application based on the *Contract-First Product
 - **Experiment Studio:** paired multi-seed experiments, aggregate performance, seed-level CSV and evidence JSON.
 - **External candidate verification:** submit an operation allocation to `POST /api/verify` and receive a fail-closed result after the separate schedule checker runs.
 - **Evidence:** deterministic input SHA-256 hash, run ID, UTC stamp, version, verified result, optional SQLite metadata-only audit log.
+- **Research & Provenance:** first-party research page with benchmark citations, upstream attribution, integrity fingerprints and rights disclosures.
 - **Reproducibility:** Dockerfile, Compose, API schema/docs, CI and automated regression tests.
 
 ## Quick start
@@ -51,6 +52,7 @@ The supplied Compose configuration binds to **127.0.0.1 only**. Do not expose a 
 | `POST /api/benchmark` | One classical JSP policy/instance |
 | `POST /api/benchmark/compare` | Four classical JSP policies |
 | `GET /api/runs`, `/api/research/disclosure` | Audit and model disclosures |
+| `GET /api/research/provenance` | Benchmark source attribution, reference optima, local SHA-256 fingerprints and rights status |
 
 ## Important model distinctions
 
@@ -64,9 +66,11 @@ The supplied Compose configuration binds to **127.0.0.1 only**. Do not expose a 
 
 Core algorithms are adapted without reimplementing the logic from the Version 7 research artifact supplied for ScheduleNexus. Benchmark instances were transcribed in that artifact from the [JSPLIB repository](https://github.com/tamy0612/JSPLIB). Their original sources include Fisher & Thompson (1963) and Lawrence (1984). Benchmark data redistribution rights should be reviewed by the repository owner before licensing and public release; attribution is not a substitute for permission. The original research manuscript/source figures are intentionally not bundled in this code distribution.
 
+See [research provenance](docs/RESEARCH_PROVENANCE.md), [researcher guide](docs/RESEARCHER_GUIDE.md), [external release checklist](docs/EXTERNAL_RELEASE_CHECKLIST.md) and [security policy](SECURITY.md). Third-party links live on the internal **Research & Provenance** page, not in the application sidebar.
+
 ## License & release readiness
 
-No software license is asserted here pending the author's explicit license selection and third-party benchmark-data review. Without a license, users cannot assume rights to reuse, modify, or redistribute the software. To make this genuinely open source, choose an OSI-approved license, complete the benchmark review, and archive a tagged release at Zenodo or an equivalent persistent repository. **No DOI or live public deployment is claimed.**
+No software license is asserted here pending the author's explicit license selection and third-party benchmark-data review. Without a license, users cannot assume rights to reuse, modify, or redistribute the software. To make this genuinely open source, choose an OSI-approved license, complete the benchmark review, and archive a tagged release at Zenodo or an equivalent persistent repository. **No DOI or live public deployment is claimed.** Review the mandatory gates in `docs/EXTERNAL_RELEASE_CHECKLIST.md` before soliciting unrestricted external use. A public repository is not automatically an open-source release or secure multi-user service.
 
 ## Production-hardening limitations
 
