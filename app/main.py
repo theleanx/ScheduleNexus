@@ -60,6 +60,21 @@ class ScheduleInput(BaseModel):
     orders: list[OrderInput] = Field(min_length=1, max_length=100)
     outages: dict[str, list[CalendarInterval]] = Field(default_factory=dict)
 
+class OperationInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    order: str = Field(min_length=2, max_length=30, pattern=r"^[A-Z0-9-]+$")
+    stage: int = Field(ge=0, le=19)
+    machine: Literal["CUT", "CNC", "ASM", "QC"]
+    start: float = Field(ge=0, le=100000)
+    end: float = Field(gt=0, le=100000)
+    duration: float = Field(gt=0, le=100000)
+
+class VerifyInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    orders: list[OrderInput] = Field(min_length=1, max_length=100)
+    operations: list[OperationInput] = Field(min_length=1, max_length=2000)
+    outages: dict[str, list[CalendarInterval]] = Field(default_factory=dict)
+
 class SyntheticInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     scenario: Literal["baseline", "material_delay", "machine_disruption"] = "machine_disruption"
@@ -213,6 +228,29 @@ def custom_schedule(req: ScheduleInput):
     factors = {(job.id, i): 1.0 for job in jobs for i in range(len(job.route))}
     prod.verify_schedule(jobs, ops, outages, processing_factors=factors)
     return as_prod_result(jobs, ops, outages, req.policy, "custom_schedule", req.model_dump(mode="json"))
+
+@app.post("/api/verify", dependencies=[Depends(guard)])
+def verify_candidate(req: VerifyInput):
+    """Validate an external candidate schedule against the supported fixed-route contract.
+    Unlike the scheduler, this endpoint accepts user-supplied operation allocations.
+    """
+    jobs = to_orders(req.orders)
+    outages = to_outages(req.outages)
+    prod.validate_orders(jobs, outages)
+    ids = {j.id for j in jobs}
+    for op in req.operations:
+        if op.order not in ids:
+            raise prod.PlanningError("operation references an unknown order")
+    ops = [prod.Operation(o.order, o.stage, o.machine, o.start, o.end, o.duration)
+           for o in req.operations]
+    factors = {(j.id, i): 1.0 for j in jobs for i in range(len(j.route))}
+    prod.verify_schedule(jobs, ops, outages, processing_factors=factors)
+    m = prod.metrics(jobs, ops)
+    record = audit("external_verify", req.model_dump(mode="json"),
+                   {"n_orders": len(jobs), "n_operations": len(ops), "makespan": m["makespan"]})
+    return {"run": record, "verified": True, "model": "production",
+            "operations_checked": len(ops), "metrics": m,
+            "disclosure": "Only contracted production-model constraints were evaluated; this does not verify data provenance or plant suitability"}
 
 @app.post("/api/synthetic", dependencies=[Depends(guard)])
 def synthetic(req: SyntheticInput):

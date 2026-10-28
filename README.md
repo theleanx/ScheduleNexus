@@ -11,6 +11,7 @@ ScheduleNexus is a research web application based on the *Contract-First Product
 - **Algorithm comparison:** three production policies on exactly the same synthetic workload and processing factors; CSV export.
 - **Benchmark Lab:** six published FT/LA classical JSP benchmark instances; FIFO (job-index), SPT, MWKR and fixed-budget ARK; makespan, published optimum, gap, verification and Gantt; CSV export.
 - **Experiment Studio:** paired multi-seed experiments, aggregate performance, seed-level CSV and evidence JSON.
+- **External candidate verification:** submit an operation allocation to `POST /api/verify` and receive a fail-closed result after the separate schedule checker runs.
 - **Evidence:** deterministic input SHA-256 hash, run ID, UTC stamp, version, verified result, optional SQLite metadata-only audit log.
 - **Reproducibility:** Dockerfile, Compose, API schema/docs, CI and automated regression tests.
 
@@ -43,6 +44,7 @@ The supplied Compose configuration binds to **127.0.0.1 only**. Do not expose a 
 | `GET /api/health`, `/api/catalog`, `/api/example` | Health, supported models, validated example input |
 | `POST /api/synthetic` | Seeded synthetic production schedule |
 | `POST /api/schedule` | User-specified, typed production schedule |
+| `POST /api/verify` | Validate an externally supplied candidate schedule |
 | `POST /api/commands/parse` | Bounded-English parsing, no inferred values |
 | `POST /api/compare` | Paired FIFO/SPT/EDD schedule comparisons |
 | `POST /api/batch` | Bounded multi-seed experiment |
@@ -69,3 +71,14 @@ No software license is asserted here pending the author's explicit license selec
 ## Production-hardening limitations
 
 The current runnable reference service uses bounded synchronous optimization, in-process rate limiting and a local SQLite audit. It does **not** yet provide multi-tenant identity, background queues, distributed quotas, asynchronous cancellation, external observability, penetration testing, or cloud load-test evidence. These must be added for an unrestricted public launch.
+
+## Reproduce the paper's extended computations
+
+The `research/` directory also includes the original Version 7 stand-alone experiment scripts (synthetic, sensitivity, external benchmark, fault-injection, subset MILP, holdout, multi-seed ARK and figure generator). These are **separate, heavier** research reproductions and not all run through the synchronous demo API. Install the optional analysis dependencies and run:
+
+```bash
+pip install -r requirements-research.txt
+bash scripts/reproduce_paper.sh
+```
+
+The scripts write computed artifacts under `research/data/` and figures in `research/figures/` (intentionally gitignored). Long-running commands are not executed automatically by the website. Existing paper numeric claims must be validated against the specific version, seeds, inputs, and solver environment listed in the manuscript.

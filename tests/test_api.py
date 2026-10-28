@@ -94,3 +94,16 @@ def test_audit_records():
 def test_spa_has_all_tabs():
     html=client.get('/').text
     assert all(f'page-{x}' in html for x in ('overview','workbench','compare','benchmarks','batch','evidence'))
+
+
+def test_external_candidate_verification_and_rejection():
+    example=client.get('/api/example').json()
+    original=client.post('/api/schedule',json=example)
+    assert original.status_code == 200, original.text
+    original=original.json()
+    payload={'orders':original['orders'],'operations':original['operations'],'outages':original['outages']}
+    valid=client.post('/api/verify',json=payload)
+    assert valid.status_code == 200 and valid.json()['verified'],valid.text
+    payload['operations'][0]['duration'] += 1
+    invalid=client.post('/api/verify',json=payload)
+    assert invalid.status_code == 422,invalid.text

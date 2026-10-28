@@ -5,7 +5,8 @@ All instances manually transcribed from the cited JSPLIB raw instance files; see
 from pathlib import Path
 import csv, math, random, statistics, time, json, hashlib
 from dataclasses import dataclass
-ROOT=Path(__file__).resolve().parent.parent
+ROOT=Path(__file__).resolve().parent
+BENCH_ROOT=ROOT.parent
 OPT={'ft06':55,'la01':666,'la02':655,'la03':597,'la04':590,'la05':593}
 
 @dataclass(frozen=True)
@@ -18,7 +19,7 @@ class Op:
 
 def load_instance(name):
     assert name in OPT
-    path=ROOT/'benchmarks'/f'{name}.txt'
+    path=BENCH_ROOT/'benchmarks'/f'{name}.txt'
     ls=[x for x in path.read_text().splitlines() if x.strip() and not x.startswith('#')]
     nj,nm=map(int,ls[0].split());assert len(ls)==nj+1
     jobs=[]
@@ -141,7 +142,7 @@ def main():
         try:check(jobs,nm,bare,setup_hours=5)
         except AssertionError: invalid+=1
     assert invalid==len(OPT)
-    (dat/'external_jobshop_metadata.json').write_text(json.dumps({'source':'https://github.com/tamy0612/JSPLIB (published Lawrence and Fisher-Thompson instances); transcribed unchanged','source_files':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ROOT/'benchmarks').glob('*.txt'))},'published_known_optima':OPT,'objective':'makespan; no releases, material delays, outages or due dates','random_key_annealing_steps':1500,'setup_stress':'5 time units on cross-family transitions, family=job_index modulo 3; 6 instances x 3 methods; no claim against published no-setup optimum','random_seed_per_instance':'60000 + instance index (0-based)','elapsed_seconds':round(time.perf_counter()-tic,3)},indent=2))
+    (dat/'external_jobshop_metadata.json').write_text(json.dumps({'source':'https://github.com/tamy0612/JSPLIB (published Lawrence and Fisher-Thompson instances); transcribed unchanged','source_files':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((BENCH_ROOT/'benchmarks').glob('*.txt'))},'published_known_optima':OPT,'objective':'makespan; no releases, material delays, outages or due dates','random_key_annealing_steps':1500,'setup_stress':'5 time units on cross-family transitions, family=job_index modulo 3; 6 instances x 3 methods; no claim against published no-setup optimum','random_seed_per_instance':'60000 + instance index (0-based)','elapsed_seconds':round(time.perf_counter()-tic,3)},indent=2))
     print('External JSP scores (published best-known OPT)')
     for name in OPT:
         print(name,'optimal',OPT[name],[(z['method'],z['makespan'],round(z['gap_pct'],1)) for z in out if z['instance']==name])

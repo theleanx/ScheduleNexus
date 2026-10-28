@@ -40,3 +40,15 @@ async function refreshEvidence(){const target=$('auditResults');try{const d=awai
 $('refreshEvidence').addEventListener('click',refreshEvidence);
 
 $('loadCustomExample').addEventListener('click',async()=>{try{const d=await api('/api/example');$('customJson').value=JSON.stringify(d,null,2);notify('Editable example loaded — adjust orders, routing, and outages as needed')}catch(e){notify(e.message,true)}});
+
+$('loadVerifyExample').addEventListener('click',async()=>{try{
+ const base=await api('/api/example');const d=await api('/api/schedule',base);
+ $('verifyJson').value=JSON.stringify({orders:d.orders,operations:d.operations,outages:d.outages},null,2);
+ $('verificationMessage').className='inline-message subtle';$('verificationMessage').textContent='Example loaded. You can now tamper with an operation and rerun the verifier.';
+ notify('Feasible candidate schedule loaded');
+}catch(e){notify(e.message,true)}});
+$('verifyCandidate').addEventListener('click',async()=>{const el=$('verificationMessage');try{
+ const parsed=JSON.parse($('verifyJson').value);const d=await api('/api/verify',parsed);
+ el.className='inline-message pass';el.textContent=`PASS: ${d.operations_checked} operations satisfy the contracted constraints. Run ${d.run.id}.`;
+ notify('External schedule passed verification');
+}catch(e){el.className='inline-message fail';el.textContent='REJECTED: '+e.message;notify('Candidate rejected',true)}});
