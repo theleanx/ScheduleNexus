@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const all=(s)=>[...document.querySelectorAll(s)];
 let currentSchedule=null, currentCompare=null, currentBench=null, currentBatch=null;
-const labelMap={overview:'Overview',workbench:'Schedule Workbench',compare:'Compare Algorithms',benchmarks:'Job-shop Benchmarks',batch:'Experiment Studio',evidence:'Evidence & Audit'};
+const labelMap={overview:'Overview',workbench:'Schedule Workbench',compare:'Compare Algorithms',benchmarks:'Job-shop Benchmarks',batch:'Experiment Studio',evidence:'Evidence & Audit',provenance:'Research & Provenance'};
 const fmt=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const safe=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const attr=(v)=>safe(v);
@@ -38,6 +38,9 @@ $('runBatch').addEventListener('click',async()=>{const btn=$('runBatch');busy(bt
  html+=table(d.summary,[{title:'Policy',key:'method'},{title:'Mean tardiness (h)',key:'mean_tardiness',render:v=>fmt(v)},{title:'On-time (%)',key:'on_time_pct',render:v=>fmt(v)},{title:'Flow (h)',key:'mean_flow_time',render:v=>fmt(v)},{title:'Makespan (h)',key:'makespan',render:v=>fmt(v)}]);html+=`<div class="hint-panel">${safe(d.disclosure)}. No multiple-comparison correction or general statistical claim is made by this exploratory UI.</div>`;$('batchResults').className='card';$('batchResults').innerHTML=html;$('downloadBatchCsv').onclick=()=>download(d.rows,'schedulenexus-experiment.csv','csv');$('downloadBatchJson').onclick=()=>download(d,'schedulenexus-evidence.json');notify(`${d.rows.length} verified records produced`)}catch(e){notify(e.message,true)}finally{busy(btn,false)}});
 async function refreshEvidence(){const target=$('auditResults');try{const d=await api('/api/runs?limit=30');if(!d.rows.length){target.innerHTML='<p class="muted small">No runs stored yet. Execute a scenario to create an audit record.</p>';return}target.innerHTML=table(d.rows,[{title:'Run ID',key:'id'},{title:'Type',key:'kind'},{title:'Time (UTC)',key:'timestamp_utc',render:v=>safe(String(v).slice(0,19))},{title:'Input SHA-256',key:'input_sha256',render:v=>`<code title="${attr(v)}">${safe(v.slice(0,16))}…</code>`}])}catch(e){target.textContent='Audit unavailable: '+e.message}}
 $('refreshEvidence').addEventListener('click',refreshEvidence);
+async function refreshProvenance(){const target=$('provenanceResults');try{const d=await api('/api/research/provenance');target.innerHTML=table(d.benchmarks,[{title:'Instance',key:'instance'},{title:'Jobs',key:'jobs'},{title:'Machines',key:'machines'},{title:'Published optimum',key:'published_optimum'},{title:'File SHA-256',key:'sha256',render:v=>`<code title="${attr(v)}">${safe(v.slice(0,18))}…</code>`}])+`<p class="small muted">${safe(d.dataset_status)} · Source: <a href="${attr(d.source_url)}" target="_blank" rel="noopener noreferrer">JSPLIB</a></p>`;}catch(e){target.textContent='Provenance metadata unavailable: '+e.message}}
+$('refreshProvenance').addEventListener('click',refreshProvenance);
+
 
 $('loadCustomExample').addEventListener('click',async()=>{try{const d=await api('/api/example');$('customJson').value=JSON.stringify(d,null,2);notify('Editable example loaded — adjust orders, routing, and outages as needed')}catch(e){notify(e.message,true)}});
 

@@ -327,7 +327,7 @@ def jsp_result(name: str, method: str, seed: int, iterations: int, setup_hours: 
             "accepted_moves": accepted, "jobs": len(jobs), "machines": nm, "operations_count": len(ops),
             "makespan": score, "published_no_setup_optimum": optimal,
             "gap_pct": 100*(score-optimal)/optimal if optimal is not None else None,
-            "setup_hours": setup_hours, "verified": True, "optimality_proven": optimal is not None and abs(score-optimal)<1e-8,
+            "setup_hours": setup_hours, "benchmark_sha256": hashlib.sha256((ROOT / "benchmarks" / f"{name}.txt").read_bytes()).hexdigest(), "verified": True, "optimality_proven": optimal is not None and abs(score-optimal)<1e-8,
             "operations": [asdict(o) for o in ops]}
 
 @app.post("/api/benchmark", dependencies=[Depends(guard)])
@@ -351,6 +351,27 @@ def recent_runs(limit: int = 20):
     with _db_lock, sqlite3.connect(db_path(), timeout=3) as conn:
         rows = conn.execute("SELECT id, created_at, kind, input_sha256, summary_json FROM runs ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
     return {"rows": [{"id": r[0], "timestamp_utc": r[1], "kind": r[2], "input_sha256": r[3], "summary": json.loads(r[4])} for r in rows]}
+
+@app.get("/api/research/provenance")
+def research_provenance():
+    """Published dataset references and SHA-256 fingerprints for research auditing."""
+    names = list(jsp.OPT)
+    benchmarks = []
+    for name in names:
+        path = ROOT / "benchmarks" / f"{name}.txt"
+        jobs, machines = jsp.load_instance(name)
+        benchmarks.append({"instance": name, "jobs": len(jobs), "machines": machines,
+                           "operations": sum(map(len, jobs)), "published_optimum": jsp.OPT[name],
+                           "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                           "upstream_file": f"https://github.com/tamy0612/JSPLIB/blob/master/instances/{name}"})
+    return {"platform": "ScheduleNexus Lab", "engine_version": VERSION,
+            "source_url": "https://github.com/tamy0612/JSPLIB",
+            "research_track": "classical job-shop benchmark, no releases/dues/material outages/setups",
+            "benchmarks": benchmarks,
+            "dataset_status": "Content numerically compared against upstream JSPLIB instances; redistribution permissions remain under review",
+            "code_license_status": "Not yet selected by repository owner",
+            "attribution": ["Fisher & Thompson (1963), Industrial Scheduling", "Lawrence (1984), Resource Constrained Project Scheduling"],
+            "limitations": ["Not plant validated", "No claimed overall heuristic optimality", "Separate verifier shares model assumptions"]}
 
 @app.get("/api/research/disclosure")
 def disclosure():
