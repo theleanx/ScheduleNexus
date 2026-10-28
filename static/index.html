@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="ScheduleNexus Lab — reproducible manufacturing scheduling and feasibility verification">
+<title>ScheduleNexus Lab | Scheduling, Optimization & Verification</title>
+<link rel="stylesheet" href="/assets/styles.css"></head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+ <div class="brand"><span class="mark">S<span class="mark-pin">●</span></span><div><b>ScheduleNexus</b><small>RESEARCH LAB <span class="version">v0.1</span></small></div></div>
+ <div class="sidebar-divider"></div><p class="nav-label">WORKSPACE</p>
+ <nav aria-label="Primary navigation">
+  <button class="nav-item active" data-page="overview"><span class="nav-icon">◈</span>Overview</button>
+  <button class="nav-item" data-page="workbench"><span class="nav-icon">▦</span>Schedule Workbench</button>
+  <button class="nav-item" data-page="compare"><span class="nav-icon">▥</span>Compare Algorithms</button>
+  <button class="nav-item" data-page="benchmarks"><span class="nav-icon">▤</span>Job-shop Benchmarks</button>
+  <button class="nav-item" data-page="batch"><span class="nav-icon">◷</span>Experiment Studio</button>
+  <button class="nav-item" data-page="evidence"><span class="nav-icon">◇</span>Evidence & Audit</button>
+ </nav><div class="sidebar-divider"></div>
+ <p class="nav-label">RESEARCH RESOURCES</p>
+ <a class="side-link" href="/api/docs" target="_blank" rel="noopener">API documentation <span>↗</span></a>
+ <a class="side-link" href="https://github.com/theleanx/ScheduleNexus" target="_blank" rel="noopener">Source repository <span>↗</span></a>
+ <a class="side-link" href="https://github.com/tamy0612/JSPLIB" target="_blank" rel="noopener">JSPLIB provenance <span>↗</span></a>
+ <div class="sidebar-bottom"><div class="status-dot"></div> Research-only deployment <small>No LLM · No ERP connection</small></div>
+</aside>
+<main class="main">
+ <header class="topbar"><div class="breadcrumb"><span class="top-workspace">RESEARCH WORKSPACE</span><span class="crumb-sep">/</span><span id="breadcrumb">Overview</span></div><div class="top-actions"><span class="top-pill">Contract-first</span><span class="top-avatar">SN</span></div></header>
+ <div class="content">
+ <section id="page-overview" class="page visible">
+  <div class="hero"><div><p class="eyebrow">REPRODUCIBLE MANUFACTURING RESEARCH</p><h1>Decision-ready schedules.<br><em>Evidence you can verify.</em></h1><p>Run finite-capacity production scenarios, compare dispatch rules and published job-shop benchmarks, and inspect feasibility checks — all powered by the research code.</p><div class="hero-actions"><button class="primary" data-go="workbench">Launch workbench <span>→</span></button><button class="ghost" data-go="benchmarks">Explore benchmarks</button></div></div><div class="hero-visual" aria-hidden="true"><div class="mini-head"><span>PRODUCTION TIMELINE</span><span>● VERIFIED</span></div><div class="mini-grid"><span>Cutting</span><div><i style="width:48%;left:0"></i><i style="width:27%;left:51%"></i></div><span>CNC</span><div><i style="width:28%;left:23%"></i><i style="width:43%;left:54%"></i></div><span>Assembly</span><div><i style="width:31%;left:49%"></i></div><span>Quality</span><div><i style="width:18%;left:80%"></i></div></div><div class="mini-footer">Routing ✓ &nbsp; Capacity ✓ &nbsp; Outages ✓</div></div></div>
+  <div class="stat-grid"><div class="stat"><small>Research models</small><strong>02</strong><span>Production & classical job-shop</span></div><div class="stat"><small>Dispatch & search methods</small><strong>05</strong><span>FIFO, SPT, EDD, MWKR, ARK</span></div><div class="stat"><small>Published benchmark instances</small><strong>06</strong><span>FT06 · LA01–LA05</span></div><div class="stat"><small>Verification approach</small><strong>Fail-closed</strong><span>Post-schedule feasibility gate</span></div></div>
+  <div class="section-heading"><div><p class="eyebrow">YOUR TOOLS</p><h2>Explore the laboratory</h2></div></div>
+  <div class="feature-grid"><button data-go="workbench" class="feature"><span class="feature-icon">▦</span><h3>Schedule Workbench</h3><p>Generate synthetic workloads, add explicit order commands, and inspect operation-level Gantt charts.</p><strong>Open workbench →</strong></button><button data-go="compare" class="feature"><span class="feature-icon">▥</span><h3>Algorithm Comparison</h3><p>Run policies on the same workload and see tardiness, flow time, service rate and makespan side by side.</p><strong>Compare methods →</strong></button><button data-go="benchmarks" class="feature"><span class="feature-icon">◫</span><h3>Public Benchmarks</h3><p>Measure heuristic gaps against published no-setup job-shop optima using fixed, reproducible seeds.</p><strong>Explore instances →</strong></button></div>
+  <div class="callout"><span>ⓘ</span><p><b>Research integrity.</b> Results are computational and use synthetic or published benchmark instances. This application has not been validated on real plant data and does not claim general optimality.</p></div>
+ </section>
+
+ <section id="page-workbench" class="page">
+  <div class="page-title"><div><p class="eyebrow">PRODUCTION MODEL</p><h1>Schedule Workbench</h1><p>Build finite-capacity schedules with material-release gates and machine downtime calendars.</p></div><span class="scope-pill">SYNTHETIC MODEL</span></div>
+  <div class="workspace-grid"><div class="card inputs"><h2>Experiment configuration</h2><label for="wScenario">Scenario</label><select id="wScenario"><option value="machine_disruption">Machine disruption</option><option value="material_delay">Material delay</option><option value="baseline">Nominal operations</option></select><label for="wPolicy">Dispatch policy</label><select id="wPolicy"><option>EDD</option><option>FIFO</option><option>SPT</option></select><div class="two-col"><div><label for="wSeed">Random seed</label><input id="wSeed" type="number" min="0" max="10000000" value="202600"></div><div><label for="wCount">Orders</label><input id="wCount" type="number" min="2" max="100" value="32"></div></div><button id="runSchedule" class="primary full">Run verified schedule →</button><hr><h2>Additional order (optional)</h2><p class="small muted">Explicit grammar only. Processing times are hours per unit; missing values are rejected.</p><textarea id="wCommand" rows="5" spellcheck="false">PLAN ORDER DEMO-99, 3 UNITS RELEASE 5 DUE 95 MATERIAL READY 9 ROUTE CUT:1.5 > CNC:2.0 > QC:0.4</textarea><button class="outline full" id="validateCommand">Validate command</button><div id="commandStatus" class="inline-message subtle">No order added until you run the schedule with this command.</div><div class="checkbox-line"><input id="includeCommand" type="checkbox"><label for="includeCommand">Include additional order</label></div><hr><details class="custom-json"><summary>Advanced: supply your own complete orders (JSON)</summary><p class="small muted">Use fully specified production orders and optional outage calendars. This bypasses the synthetic scenario generator; the typed contract still applies.</p><textarea id="customJson" rows="8" spellcheck="false" placeholder="Click Load editable example"></textarea><button id="loadCustomExample" class="outline full">Load editable example</button><div class="checkbox-line"><input id="useCustom" type="checkbox"><label for="useCustom">Run custom JSON instead of synthetic scenario</label></div></details></div>
+   <div class="results"><div class="results-head"><h2>Verified schedule outcomes</h2><button id="exportSchedule" class="outline small-btn" disabled>↓ JSON export</button></div><div id="wResults" class="empty"><div class="empty-icon">▦</div><b>No schedule yet</b><span>Configure your scenario and run the verified planner.</span></div></div></div>
+ </section>
+
+ <section id="page-compare" class="page">
+  <div class="page-title"><div><p class="eyebrow">PAIRED WORKLOADS</p><h1>Compare Algorithms</h1><p>Compare FIFO, SPT, and EDD against identical synthetic inputs and processing-time factors.</p></div><span class="scope-pill">NO OPTIMALITY CLAIM</span></div>
+  <div class="card toolbar"><label for="cScenario">Scenario<select id="cScenario"><option value="machine_disruption">Machine disruption</option><option value="material_delay">Material delay</option><option value="baseline">Nominal operations</option></select></label><label for="cSeed">Seed<input id="cSeed" type="number" value="202600" min="0" max="10000000"></label><label for="cCount">Orders<input id="cCount" type="number" value="32" min="2" max="100"></label><button id="runCompare" class="primary">Compare all policies →</button></div>
+  <div id="compareResults" class="card empty tall"><div class="empty-icon">▥</div><b>Run a paired comparison</b><span>One identical workload will be scheduled by three different policies.</span></div>
+ </section>
+
+ <section id="page-benchmarks" class="page">
+  <div class="page-title"><div><p class="eyebrow">EXTERNAL COMPARABILITY</p><h1>Job-shop Benchmarks</h1><p>Six published Fisher–Thompson and Lawrence instances, evaluated by makespan.</p></div><span class="scope-pill">JSPLIB DATA</span></div>
+  <div class="card toolbar"><label for="bInstance">Benchmark<select id="bInstance"><option>ft06</option><option>la01</option><option>la02</option><option>la03</option><option>la04</option><option>la05</option></select></label><label for="bSeed">ARK random seed<input id="bSeed" type="number" value="2100" min="0" max="10000000"></label><label for="bSteps">Search proposals<select id="bSteps"><option value="1500">1,500 · research configuration</option><option value="500" selected>500 · quick preview</option><option value="100">100 · smoke test</option></select></label><button id="runBenchmarks" class="primary">Run benchmark →</button></div>
+  <div id="benchmarkResults" class="card empty tall"><div class="empty-icon">◫</div><b>Choose an instance to benchmark</b><span>Results include feasibility status, makespan, and percent gap to the published no-setup optimum.</span></div>
+  <div class="callout"><span>ⓘ</span><p>On this track, FIFO is job-index priority (classical instances have no release dates). It is not the ready-time FIFO used in the production model. ARK is stochastic; a single-seed result is not a performance distribution.</p></div>
+ </section>
+
+ <section id="page-batch" class="page">
+  <div class="page-title"><div><p class="eyebrow">REPRODUCIBLE COMPUTATIONAL STUDY</p><h1>Experiment Studio</h1><p>Execute multiple paired seeds and export run-level evidence for independent checking.</p></div><span class="scope-pill">EXPLORATORY</span></div>
+  <div class="card toolbar"><label for="xScenario">Scenario<select id="xScenario"><option value="machine_disruption">Machine disruption</option><option value="material_delay">Material delay</option><option value="baseline">Nominal operations</option></select></label><label for="xSeed">First seed<input id="xSeed" type="number" min="0" max="9999990" value="300000"></label><label for="xReps">Replications<input id="xReps" type="number" min="2" max="30" value="10"></label><label for="xCount">Orders<input id="xCount" type="number" min="2" max="64" value="32"></label><button id="runBatch" class="primary">Run experiment →</button></div>
+  <div id="batchResults" class="card empty tall"><div class="empty-icon">◷</div><b>Generate paired replication evidence</b><span>The same seeds are used for each of the three policies. Each schedule passes the separate verifier.</span></div>
+ </section>
+
+ <section id="page-evidence" class="page"><div class="page-title"><div><p class="eyebrow">TRANSPARENT METHODS</p><h1>Evidence & Audit</h1><p>Review reproducibility metadata, operating assumptions, and recent run checksums.</p></div></div>
+  <div class="evidence-grid"><div class="card"><h2>Verification contract</h2><div class="checkline">✓ All routed stages exist exactly once</div><div class="checkline">✓ Stage sequence obeys precedence</div><div class="checkline">✓ Machines have no overlapping operations</div><div class="checkline">✓ Material and order release respected</div><div class="checkline">✓ Outage intervals remain unoccupied</div><div class="checkline">✓ Required processing durations checked</div><p class="small muted">The verifier is a separate code path, not independent of shared time and resource semantics.</p></div><div class="card"><h2>Documented boundaries</h2><div class="checkline neutral">○ No plant data or MES integration</div><div class="checkline neutral">○ No LLM-generated specifications</div><div class="checkline neutral">○ No parallel machines in production model</div><div class="checkline neutral">○ No labor or dynamic routing optimization</div><div class="checkline neutral">○ Search is heuristic unless a known optimum is matched</div><p class="small muted">A match to a published optimum applies only to the corresponding unchanged benchmark instance.</p></div></div>
+  <div class="card mt"><div class="results-head"><h2>Recent local experiment records</h2><button id="refreshEvidence" class="outline small-btn">Refresh</button></div><p class="small muted">Run history stores request hashes and aggregate results, not raw user order data.</p><div id="auditResults" class="table-wrap"><p class="muted small">Click Refresh to load recent results.</p></div></div>
+ </section>
+ <div id="globalStatus" role="status" aria-live="polite" class="toast hidden"></div>
+ </div>
+ <footer>ScheduleNexus Lab · Research software · Results are not production forecasts · <a href="https://github.com/theleanx/ScheduleNexus" target="_blank" rel="noopener">Repository</a></footer>
+</main></div>
+<script src="/assets/app.js" defer></script></body></html>

@@ -1,0 +1,22 @@
+services:
+  schedulenexus:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      SCHEDULENEXUS_DB: /data/runs.db
+      SCHEDULENEXUS_AUDIT: "1"
+      SCHEDULENEXUS_RPM: "60"
+      # Set SCHEDULENEXUS_API_KEY for protected API deployments and configure browser gateway
+    volumes:
+      - schedulenexus-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+volumes:
+  schedulenexus-data:
